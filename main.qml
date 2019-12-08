@@ -4,15 +4,16 @@ import QtQuick.Window 2.12
 Window {
     id: root
     visible: true
-    width: 640
+    width: 960
     height: 480
     title: qsTr("Caching loader vs. normal loader")
 
+    // normal Loader
     Rectangle {
         id: normalLoaderButton
         anchors.left: root.left
         anchors.top: root.top
-        width: root.width / 2
+        width: root.width / 3
         height: root.height / 2
         Text {
             text: "keep clicking to benchmark normal loader"
@@ -37,16 +38,84 @@ Window {
         id: normalLoader
         anchors.left: root.left
         anchors.top: normalLoaderButton.bottom
-        width: root.width / 2
+        width: root.width / 3
         height: root.height / 2
     }
 
 
+    // normal Loader with sourceComponent
     Rectangle {
-        id: cachingLoaderButton
+        id: normalComponentLoaderButton
         anchors.left: normalLoaderButton.right
         anchors.top: root.top
-        width: root.width / 2
+        width: root.width / 3
+        height: root.height / 2
+        Text {
+            text: "keep clicking to benchmark\nnormal loader with Component"
+            anchors.centerIn: parent
+        }
+    }
+
+    MouseArea {
+        anchors.fill: normalComponentLoaderButton
+        onClicked: {
+            console.time("loading object with normal Component loader");
+            if(normalComponentLoader.sourceComponent == undefined || normalComponentLoader.sourceComponent === bigComponent2) {
+                normalComponentLoader.sourceComponent = bigComponent1;
+            } else {
+                normalComponentLoader.sourceComponent = bigComponent2;
+            }
+            console.timeEnd("loading object with normal Component loader");
+        }
+    }
+
+    Loader {
+        id: normalComponentLoader
+        anchors.left: normalLoader.right
+        anchors.top: normalComponentLoaderButton.bottom
+        width: root.width / 3
+        height: root.height / 2
+    }
+
+    Component {
+        id: bigComponent1
+
+        Rectangle {
+            width: parent.width
+            height: parent.height
+
+            Image {
+                anchors.centerIn: parent
+                source: "deer1.jpg"
+                width: parent.width
+                height: parent.height
+            }
+        }
+    }
+
+    Component {
+        id: bigComponent2
+
+        Rectangle {
+            width: parent.width
+            height: parent.height
+
+            Image {
+                anchors.centerIn: parent
+                source: "deer2.jpg"
+                width: parent.width
+                height: parent.height
+            }
+        }
+    }
+
+
+    // caching Loader
+    Rectangle {
+        id: cachingLoaderButton
+        anchors.left: normalComponentLoaderButton.right
+        anchors.top: root.top
+        width: root.width / 3
         height: root.height / 2
         Text {
             text: "keep clicking to benchmark caching loader"
@@ -69,9 +138,9 @@ Window {
 
     CachingLoader {
         id: cachingLoader
-        anchors.left: normalLoader.right
-        anchors.top: normalLoaderButton.bottom
-        width: root.width / 2
+        anchors.left: normalComponentLoader.right
+        anchors.top: cachingLoaderButton.bottom
+        width: root.width / 3
         height: root.height / 2
     }
 
